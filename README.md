@@ -1,6 +1,6 @@
 # Liquid simulation cellular automata
 
-Implementation of cellular automata that simulated liquid on top of HTML5 canvas using WebAssembly.
+Implementation of cellular automata that simulates liquid on top of HTML5 canvas using WebAssembly.
 
 [Live demo](https://pashawnn.github.io/cellular_liquid/)
 
