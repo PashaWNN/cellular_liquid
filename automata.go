@@ -41,13 +41,10 @@ func (c* Cell) GetColor() color.RGBA {
 		r := uint8(50)
 		g := uint8(50)
 		var b uint8
-		if true {
-			b = uint8(mapRange(m, 0.01, 1, 255, 200))
-			r = uint8(constrain(mapRange(m, 0.01, 1, 240, 50), 50, 240))
-			g = r }
-		//} else {
-		//	b = uint8(mapRange(m, 1, 1.1, 190, 140))
-		//}
+
+		b = uint8(mapRange(m, 0.01, 1, 255, 200))
+		r = uint8(constrain(mapRange(m, 0.01, 1, 240, 50), 50, 240))
+		g = r
 		b = uint8(constrain(float64(b), 140, 255))
 		return color.RGBA{r, g, b, 255}
 	} else if c.cellType == Solid {
@@ -90,11 +87,11 @@ func simulate(cells [][]Cell) {
 				continue
 			}
 
-			var this   *Cell = &cells[x  ][y  ]
-			var left   *Cell = &cells[x-1][y  ]
-			var right  *Cell = &cells[x+1][y  ]
-			var up     *Cell = &cells[x  ][y-1]
-			var bottom *Cell = &cells[x  ][y+1]
+			var this   = &cells[x  ][y  ]
+			var left   = &cells[x-1][y  ]
+			var right  = &cells[x+1][y  ]
+			var up     = &cells[x  ][y-1]
+			var bottom = &cells[x  ][y+1]
 
 			if FallDown(this, bottom) {
 				if Spread(this, left, right) {
