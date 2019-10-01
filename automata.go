@@ -13,7 +13,8 @@ const (
 	Solid
 )
 
-
+const minDraw = 0.01
+const maxDraw = 1.1
 const maxSpeed = 2.0
 const maxVolume = 1.0
 const maxPressure = 0.15
@@ -35,12 +36,20 @@ func (c* Cell) GetColor() color.RGBA {
 		if c.volume <= 0 {
 			return color.RGBA{0xff, 0xff, 0xff, 0xff}
 		}
-		col := uint8(colorSlope * c.GetPressure())
-		return color.RGBA{
-			0xcc - col,
-			0xe6 - col,
-			255 - col,
-			0xff}
+		m := constrain(c.volume, minDraw, maxDraw)
+
+		r := uint8(50)
+		g := uint8(50)
+		var b uint8
+		if true {
+			b = uint8(mapRange(m, 0.01, 1, 255, 200))
+			r = uint8(constrain(mapRange(m, 0.01, 1, 240, 50), 50, 240))
+			g = r }
+		//} else {
+		//	b = uint8(mapRange(m, 1, 1.1, 190, 140))
+		//}
+		b = uint8(constrain(float64(b), 140, 255))
+		return color.RGBA{r, g, b, 255}
 	} else if c.cellType == Solid {
 		return color.RGBA{0x00, 0x00, 0x33, 0xff}
 	}
@@ -185,4 +194,9 @@ func constrain(x, a, b float64) float64 {
 		result = a
 	}
 	return result
+}
+
+
+func mapRange(t, a, b, c, d float64) float64  {
+	return c + ((d - c) / (b - a)) * (t - a)
 }
