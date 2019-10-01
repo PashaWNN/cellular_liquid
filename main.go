@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/llgcode/draw2d/draw2dimg"
 	"github.com/llgcode/draw2d/draw2dkit"
 	"github.com/markfarnan/go-canvas/canvas"
@@ -14,29 +13,30 @@ var cells [][]Cell
 var done chan struct{}
 
 var cvs *canvas.Canvas2d
-var width = 40
-var height = 20
-var cellSize = 20.0
+const width = 40
+const height = 20
+const cellSize = 20.0
+var pressed = false
 
 
 func main() {
 
 	cvs, _ = canvas.NewCanvas2d(true)
-	js.Global().Set("click", js.FuncOf(handleClick))
-	fmt.Println(js.
+	cvs_obj := js.
 		Global().
 		Get("document").
-		Get("body").
-		Get("children").
-		Index(0).
-		Call("addEventListener", "click", js.Global().Get("click")))
+		Call("getElementsByTagName", "canvas").
+		Index(0)
+	cvs_obj.Call("addEventListener", "mousemove", js.FuncOf(handleMouseMove))
+	cvs_obj.Call("addEventListener", "mousedown", js.FuncOf(handleMouseDown))
+	cvs_obj.Call("addEventListener", "mouseup"  , js.FuncOf(handleMouseUp  ))
 
 	for i := 0; i < width; i++ {
 		var column []Cell
 		for j := 0; j < height; j++ {
 			var t CellType = Liquid
 			var v = 0.0
-			if j == height - 1 {
+			if j == height - 1 || j == 0 || i == 0 || i == width - 1 {
 				t = Solid
 			} else if false {
 				t = Liquid
@@ -46,38 +46,43 @@ func main() {
 		}
 		cells = append(cells, column)
 	}
-	cells[3][height-2].cellType = Solid
-	cells[3][height-3].cellType = Solid
-	cells[7][height-2].cellType = Solid
-	cells[7][height-3].cellType = Solid
-	cells[3][height-4].cellType = Solid
-	cells[3][height-5].cellType = Solid
-	cells[7][height-4].cellType = Solid
-	cells[7][height-5].cellType = Solid
 
-	cells[5][height-2].cellType = Solid
-	cells[5][height-3].cellType = Solid
-	cells[5][height-4].cellType = Solid
-	cells[5][height-5].cellType = Solid
-
-	cells[8][height-3].cellType = Solid
-	cells[9][height-3].cellType = Solid
 	cvs.Start(60, Render)
 	<-done
 }
 
-func handleClick(this js.Value, args []js.Value) interface{} {
+
+func handleMouseDown(this js.Value, args []js.Value) interface{} {
+	pressed = true
+	return nil
+}
+
+func handleMouseUp(this js.Value, args []js.Value) interface{} {
+	pressed = false
+	return nil
+}
+
+func handleMouseMove(this js.Value, args []js.Value) interface{} {
 	mouseEvent := args[0]
-	btn := mouseEvent.Get("button")
-	x := mouseEvent.Get("clientX").Int()/int(cellSize)
-	y := mouseEvent.Get("clientY").Int()/int(cellSize)
-	if cells[x][y].cellType == Void || cells[x][y].cellType == Liquid {
-		cells[x][y].cellType = Solid
-	} else {
-		cells[x][y].cellType = Liquid
-		cells[x][y].volume = maxVolume + maxPressure
+	js.Global().Get("console").Call("log", mouseEvent)
+	shift := mouseEvent.Get("shiftKey").Bool()
+	ctrl := mouseEvent.Get("ctrlKey").Bool()
+	if pressed {
+		x := int((mouseEvent.Get("offsetX").Float()) / cellSize)
+		y := int((mouseEvent.Get("offsetY").Float()) / cellSize)
+		if x > width - 1 || y > height - 1 || y < 1 || x < 1 {
+			return nil
+		}
+		if !ctrl && !shift {
+			cells[x][y].cellType = Liquid
+			cells[x][y].volume = maxVolume + maxPressure
+		} else if ctrl && !shift {
+			cells[x][y].cellType = Solid
+		} else if shift && !ctrl {
+			cells[x][y].cellType = Void
+			cells[x][y].volume = 0
+		}
 	}
-	fmt.Println(x, y, btn)
 	return nil
 }
 
