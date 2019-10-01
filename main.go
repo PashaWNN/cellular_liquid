@@ -64,13 +64,12 @@ func handleMouseUp(this js.Value, args []js.Value) interface{} {
 
 func handleMouseMove(this js.Value, args []js.Value) interface{} {
 	mouseEvent := args[0]
-	js.Global().Get("console").Call("log", mouseEvent)
 	shift := mouseEvent.Get("shiftKey").Bool()
 	ctrl := mouseEvent.Get("ctrlKey").Bool()
 	if pressed {
 		x := int((mouseEvent.Get("offsetX").Float()) / cellSize)
 		y := int((mouseEvent.Get("offsetY").Float()) / cellSize)
-		if x > width - 1 || y > height - 1 || y < 1 || x < 1 {
+		if x >= width - 1 || y >= height - 1 || y < 1 || x < 1 {
 			return nil
 		}
 		if !ctrl && !shift {
