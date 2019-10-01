@@ -72,7 +72,7 @@ func handleMouseMove(this js.Value, args []js.Value) interface{} {
 		if x >= width - 1 || y >= height - 1 || y < 1 || x < 1 {
 			return nil
 		}
-		if !ctrl && !shift {
+		if !ctrl && !shift && cells[x][y].cellType != Solid {
 			cells[x][y].cellType = Liquid
 			cells[x][y].volume = maxVolume + maxPressure
 		} else if ctrl && !shift {
